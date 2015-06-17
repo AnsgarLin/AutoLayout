@@ -68,8 +68,7 @@ public class CellGround extends RelativeLayout {
 		for (int i = 0; i < count; i++) {
 			mCells[i] = new ImageCell(getContext());
 			mCellImages[i] = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-//			mCells[i].setImage(Bitmap.createScaledBitmap(mCellImages[i], BASIC_CELL_SIZE, BASIC_CELL_SIZE, false));
-			mCells[i].setBackgroundColor(Color.rgb(mRandom.nextInt(256), mRandom.nextInt(256), mRandom.nextInt(256)));
+			mCells[i].setImage(Bitmap.createScaledBitmap(mCellImages[i], BASIC_CELL_SIZE, BASIC_CELL_SIZE, false));
 			addView(mCells[i], BASIC_CELL_SIZE / 2, BASIC_CELL_SIZE / 2);
 			
 			// Set alpha will make canvas to shift down
@@ -153,7 +152,7 @@ public class CellGround extends RelativeLayout {
 			params.topMargin = newTop;
 			params.width = newRight - newLeft;
 			params.height = newBottom - newTop;
-//			mCells[i].setImage(Bitmap.createScaledBitmap(mCellImages[i], params.width, params.height, false));
+			mCells[i].setImage(Bitmap.createScaledBitmap(mCellImages[i], params.width, params.height, false));
 			mCells[i].setLayoutParams(params);
 
 		}

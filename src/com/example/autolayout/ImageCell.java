@@ -2,10 +2,9 @@ package com.example.autolayout;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
 import android.graphics.Region;
@@ -13,8 +12,9 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 public class ImageCell extends ImageView {
+	private Path path;
 	private Paint paint;
-	private Bitmap bitmap;
+	private Bitmap mBitmap;
 	
 	public ImageCell(Context context, AttributeSet attrs, int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -32,26 +32,28 @@ public class ImageCell extends ImageView {
 	}
 
 	public void init() {
-//		setImageResource(R.drawable.ic_launcher);
+		path = new Path();
 		paint = new Paint();
-		paint.setColor(Color.BLACK);
-		bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
-		bitmap = Bitmap.createScaledBitmap(bitmap, 400, 400, false);
 	}
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-//		super.onDraw(canvas);
-		
 		canvas.save(); 
 		canvas.clipRect(0, 0, getWidth(), getHeight());
-		Path path = new Path();
+		path.reset();
 		path.addCircle(getWidth() / 2, getHeight() / 2, getWidth() / 3, Direction.CCW);
 		canvas.clipPath(path, Region.Op.REPLACE);
-		canvas.drawBitmap(bitmap, 0, 0, paint);
-		canvas.restore(); 
+		canvas.drawBitmap(mBitmap, 0, 0, paint);
+		canvas.restore();
+		
+		paint.setStyle(Style.STROKE);
+		canvas.drawPath(path, paint);
 	}
 	
 	public void shuffle() {
+	}
+	
+	public void setImage(Bitmap bitmap) {
+		mBitmap = bitmap;
 	}
 }
