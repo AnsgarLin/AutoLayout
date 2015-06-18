@@ -11,7 +11,6 @@ import android.widget.TextView;
 public class AutoLayout extends ActionBarActivity {
 	private int mCellCount = 3;
 
-	private Playground playground;
 	private CellGround mCellGround;
 
 	@Override
@@ -26,7 +25,7 @@ public class AutoLayout extends ActionBarActivity {
 		init.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mCellGround.setCellCount(3);
+				mCellGround.setCellCount(mCellCount);
 				shuffle.setClickable(true);
 			}
 		});

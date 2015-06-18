@@ -38,19 +38,22 @@ public class ImageCell extends ImageView {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		canvas.save(); 
+		canvas.save();
+		// Circle canvas
 		canvas.clipRect(0, 0, getWidth(), getHeight());
 		path.reset();
-		path.addCircle(getWidth() / 2, getHeight() / 2, getWidth() / 3, Direction.CCW);
+		if (getWidth() < getHeight()) {
+			path.addCircle(getHeight() / 2, getHeight() / 2, getHeight() / 2, Direction.CCW);
+		} else {
+			path.addCircle(getWidth() / 2, getWidth() / 2, getWidth() / 2, Direction.CCW);
+		}
 		canvas.clipPath(path, Region.Op.REPLACE);
 		canvas.drawBitmap(mBitmap, 0, 0, paint);
 		canvas.restore();
 		
 		paint.setStyle(Style.STROKE);
+		paint.setStrokeWidth(5);
 		canvas.drawPath(path, paint);
-	}
-	
-	public void shuffle() {
 	}
 	
 	public void setImage(Bitmap bitmap) {
