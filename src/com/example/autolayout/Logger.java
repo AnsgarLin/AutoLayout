@@ -7,7 +7,7 @@ public class Logger {
 	public static void d(Class<?> c, String message) {
 		String className = parserClassName(c);
 		if (Util.LOG) {
-			Log.d("EDAM" + ":" + className, message);
+			Log.d("AutoLayout" + ":" + className, message);
 		}
 	}
 

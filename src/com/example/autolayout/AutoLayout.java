@@ -8,10 +8,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import org.opencv.android.OpenCVLoader;
+
 public class AutoLayout extends ActionBarActivity {
 	private int mCellCount = 3;
 
 	private CellGround mCellGround;
+	/**
+	 * private Load openCV library
+	 */
+	static {
+		if (!OpenCVLoader.initDebug()) {
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +38,7 @@ public class AutoLayout extends ActionBarActivity {
 				shuffle.setClickable(true);
 			}
 		});
-		
+
 		shuffle.setClickable(false);
 		shuffle.setOnClickListener(new OnClickListener() {
 			@Override
