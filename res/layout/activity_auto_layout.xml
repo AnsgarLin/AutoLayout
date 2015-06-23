@@ -5,12 +5,21 @@
     android:orientation="vertical"
     tools:context="com.example.autolayout.AutoLayout" >
 
-    <com.example.autolayout.CellGround
+    <com.example.autolayout.Playground
+        android:id="@+id/playground"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" >
+    </com.example.autolayout.Playground>
+
+    <!--
+         <com.example.autolayout.CellGround
         android:id="@+id/cell_ground"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" >
     </com.example.autolayout.CellGround>
+    -->
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -14,6 +14,8 @@ public class AutoLayout extends ActionBarActivity {
 	private int mCellCount = 3;
 
 	private CellGround mCellGround;
+	private Playground mPlayground;
+
 	/**
 	 * private Load openCV library
 	 */
@@ -26,24 +28,24 @@ public class AutoLayout extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_auto_layout);
-		mCellGround = (CellGround) findViewById(R.id.cell_ground);
-
+//		mCellGround = (CellGround) findViewById(R.id.cell_ground);
+		mPlayground = (Playground) findViewById(R.id.playground);
+		
 		final TextView init = (TextView) findViewById(R.id.init);
 		final TextView shuffle = (TextView) findViewById(R.id.shuffle);
 
 		init.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mCellGround.setCellCount(mCellCount);
-				shuffle.setClickable(true);
+//				mCellGround.setCellCount(mCellCount);
 			}
 		});
 
-		shuffle.setClickable(false);
 		shuffle.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mCellGround.shuffle();
+//				mCellGround.shuffle();
+				mPlayground.shuffleeGrid();
 			}
 		});
 	}
