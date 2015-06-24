@@ -1,5 +1,7 @@
 package com.example.autolayout;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -8,9 +10,12 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import com.asus.mediapicker.PickerActivity;
+
 import org.opencv.android.OpenCVLoader;
 
 public class AutoLayout extends ActionBarActivity {
+	public static final int IMAGE_LOAD = 100; 
 	private int mCellCount = 3;
 
 	private CellGround mCellGround;
@@ -38,6 +43,11 @@ public class AutoLayout extends ActionBarActivity {
 			@Override
 			public void onClick(View v) {
 //				mCellGround.setCellCount(mCellCount);
+				Intent intent = new Intent();
+				intent.setClass(v.getContext().getApplicationContext(), PickerActivity.class);
+				intent.putExtra(PickerActivity.ALLOW_MULTISELECT, true);
+				intent.putExtra(PickerActivity.MAX_PHOTO_LIMIT, Playground.IMAGE_SHOW_LIMIT);
+				startActivityForResult(intent, IMAGE_LOAD);
 			}
 		});
 
@@ -67,5 +77,23 @@ public class AutoLayout extends ActionBarActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case IMAGE_LOAD:
+			if (resultCode == Activity.RESULT_OK) {
+				if (data == null) {
+					// PickerActivity is finished with nothing
+					return;
+				}
+				String[] paths = data.getStringArrayExtra(PickerActivity.FILE_PATH);
+				mPlayground.loadImageWithPath(paths);
+			}
+			break;
+		default:
+			break;
+		}
 	}
 }

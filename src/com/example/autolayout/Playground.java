@@ -1,21 +1,33 @@
 package com.example.autolayout;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Point;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.RelativeLayout;
 
+import com.example.autolayout.TouchListenerUtil.ScaledImageViewTouchListener;
+
 import java.util.Random;
 
 public class Playground extends RelativeLayout implements CustomView {
+	public static final int IMAGE_SHOW_LIMIT = 5;
+	private boolean CLASSIC = true;
+	private boolean SCALABLE = false;
+	private Bitmap mLogo;
+	private Bitmap[] mImages;
+
 	private ImageView[] mCells;
 	private Random mRandom;
 	private Paint mPaint;
@@ -61,7 +73,7 @@ public class Playground extends RelativeLayout implements CustomView {
 		mPaint.setStyle(Style.FILL);
 
 		mUnit = new PointF();
-		mUnitTotal = new Point(4, 4);
+		mUnitTotal = new Point(3, 3);
 		mItemMaxCount = mUnitTotal.x * mUnitTotal.y;
 		mItemFinalCount = 0;
 
@@ -70,9 +82,30 @@ public class Playground extends RelativeLayout implements CustomView {
 			mRect[i] = new RectF(0f, 0f, 0f, 0f);
 		}
 		mColor = new int[mItemMaxCount];
+
 		for (int i = 0; i < mItemMaxCount; i++) {
 			mColor[i] = Color.rgb(mRandom.nextInt(255), mRandom.nextInt(255), mRandom.nextInt(255));
 		}
+
+		mLogo = BitmapFactory.decodeResource(getResources(), R.drawable.asus);
+	}
+
+	public void loadImageWithPath(String[] paths) {
+		if (mImages != null && mImages.length > 0) {
+			for (int i = 0; i < mImages.length; i++) {
+				if (mImages[i] != null) {
+					mImages[i].recycle();
+				}
+			}
+		}
+
+		mImages = new Bitmap[paths.length];
+		for (int i = 0; i < paths.length; i++) {
+			if ((mImages[i] = BitmapFactory.decodeFile(paths[i])) == null) {
+				Logger.d(getClass(), "Result is null: " + paths[i]);
+			}
+		}
+		shuffleeGrid();
 	}
 
 	@Override
@@ -80,8 +113,11 @@ public class Playground extends RelativeLayout implements CustomView {
 		mCells = new ImageView[mItemMaxCount];
 		for (int i = 0; i < mItemMaxCount; i++) {
 			mCells[i] = new ImageView(getContext());
-			mCells[i].setImageResource(R.drawable.ic_launcher);
 			mCells[i].setScaleType(ScaleType.CENTER_CROP);
+			if (SCALABLE) {
+				mCells[i].setScaleType(ScaleType.MATRIX);
+				mCells[i].setOnTouchListener(new ScaledImageViewTouchListener(mCells[i]));
+			}
 			addView(mCells[i], 200, 200);
 		}
 	}
@@ -108,7 +144,6 @@ public class Playground extends RelativeLayout implements CustomView {
 			mPaint.setColor(mColor[i]);
 			canvas.drawRect(mRect[i].left * mUnit.x, mRect[i].top * mUnit.y, mRect[i].right * mUnit.x, mRect[i].bottom * mUnit.y, mPaint);
 			mPaint.setColor(Color.BLACK);
-			canvas.drawLine(mRect[i].left * mUnit.x, mRect[i].top * mUnit.y, mRect[i].right * mUnit.x, mRect[i].bottom * mUnit.y, mPaint);
 
 			// Logger.d(getClass(), "/" + i + "/->" + mRect[i]);
 		}
@@ -117,16 +152,31 @@ public class Playground extends RelativeLayout implements CustomView {
 	}
 
 	public void shuffleeGrid() {
+		if (mImages == null) {
+			return;
+		}
+
 		boolean dup = false;
 		// Set the default count of final cells
 		mItemFinalCount = mItemMaxCount;
+		// Generate cells that will not cross each other
 		for (int k = 0; k < mItemMaxCount; k++) {
 			do {
-				int left = mRandom.nextInt(mUnitTotal.x);
-				int top = mRandom.nextInt(mUnitTotal.y);
-				int right = left + mRandom.nextInt(mUnitTotal.x - (int) left) + 1;
-				int bottom = top + mRandom.nextInt(mUnitTotal.y - (int) top) + 1;
-
+				float left;
+				float top;
+				float right;
+				float bottom;
+				if (CLASSIC) {
+					left = mRandom.nextInt(mUnitTotal.x);
+					top = mRandom.nextInt(mUnitTotal.y);
+					right = left + mRandom.nextInt(mUnitTotal.x - (int) left) + 1;
+					bottom = top + mRandom.nextInt(mUnitTotal.y - (int) top) + 1;
+				} else {
+					left = mRandom.nextFloat() * mUnitTotal.x;
+					top = mRandom.nextFloat() * mUnitTotal.y;
+					right = left + (1 - mRandom.nextFloat()) * (mUnitTotal.x - left);
+					bottom = top + (1 - mRandom.nextFloat()) * (mUnitTotal.y - top);
+				}
 				// Logger.d(getClass(), "O: " + mLeftTop[k].x + "," + mLeftTop[k].y + "," + mbottomRight[k].x + "," +mbottomRight[k].y);
 				mRect[k].set(left, top, right, bottom);
 
@@ -138,13 +188,25 @@ public class Playground extends RelativeLayout implements CustomView {
 			} while (dup);
 
 			if (checkCoverArea(k)) {
-				setViewWithShffle();
-				invalidate();
+				if (k < IMAGE_SHOW_LIMIT - 1) {
+					Logger.d(getClass(), "Not enough cells");
+					shuffleeGrid();
+				} else {
+					setViewWithShffle();
+					invalidate();
+				}
 				return;
 			}
 		}
+
+		// For float
+		if (CLASSIC) {
+			mItemFinalCount = mItemMaxCount;
+			setViewWithShffle();
+			invalidate();
+		}
 	}
-	
+
 	public void setViewWithShffle() {
 		for (int i = 0; i < mItemFinalCount; i++) {
 			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mCells[i].getLayoutParams();
@@ -154,32 +216,55 @@ public class Playground extends RelativeLayout implements CustomView {
 			params.height = (int) (mRect[i].height() * mUnit.y);
 			Logger.d(getClass(), "Set view [" + i + "]: " + params.width + "," + params.height);
 			mCells[i].setLayoutParams(params);
+			if (SCALABLE) {
+				if (i >= 0 && i < IMAGE_SHOW_LIMIT) {
+					Bitmap bitmap = ((BitmapDrawable) mCells[i].getDrawable()).getBitmap();
+					mCells[i].setImageBitmap(BitmapUtil.getScaleBitmap(bitmap, params.width, params.height * (params.width / bitmap.getWidth()), true));
+				}
+			} else {
+				Bitmap bitmap;
+//				if (mCells[i].getDrawable() != null) {
+//					bitmap = ((BitmapDrawable) mCells[i].getDrawable()).getBitmap();
+//					bitmap.recycle();
+//				}
+				
+				if (i >= 0 && i < IMAGE_SHOW_LIMIT) {
+					bitmap = mImages[mRandom.nextInt(mImages.length)];
+					mCells[i].setImageBitmap(bitmap);
+					mCells[i].setColorFilter(null);
+				} else {
+//					bitmap = BitmapUtil.createMutableBitmap(mLogo);
+					mCells[i].setImageBitmap(mLogo);
+					mCells[i].setColorFilter(Color.rgb(mRandom.nextInt(255), mRandom.nextInt(255), mRandom.nextInt(255)), PorterDuff.Mode.MULTIPLY);
+				}
+				bitmap = null;
+			}
 			mCells[i].setVisibility(VISIBLE);
 		}
 		for (int i = mItemFinalCount; i < mItemMaxCount; i++) {
 			mCells[i].setVisibility(GONE);
 		}
 	}
-	
-	/** 
+
+	/**
 	 * Check whether there is no room for new rect
 	 */
 	public boolean checkCoverArea(int k) {
-		int currentCoverArea = 0;
+		float currentCoverArea = 0;
 
 		for (int i = 0; i <= k; i++) {
-			currentCoverArea += mRect[i].width() * mRect[i].height();
-			if (currentCoverArea == mItemMaxCount) {
+			currentCoverArea += mRect[i].width() * mUnit.x * mRect[i].height() * mUnit.y;
+			if (currentCoverArea == mUnitTotal.x * mUnit.x * mUnitTotal.y * mUnit.y) {
 				mItemFinalCount = k + 1;
-				// Logger.d(getClass(), "Area full: " + mItemFinalCount + "," + currentCoverArea);
+				Logger.d(getClass(), "Area full: " + mItemFinalCount + "," + currentCoverArea);
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
-	 *  Check whether the target rect is contained in others
+	 * Check whether the target rect is contained in others
 	 */
 	public boolean containIn(RectF newRect, RectF oldRect) {
 		return
