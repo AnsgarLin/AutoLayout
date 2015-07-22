@@ -1,5 +1,7 @@
 package com.example.autolayout;
 
+import java.util.Random;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,26 +21,48 @@ import android.widget.RelativeLayout;
 
 import com.example.autolayout.TouchListenerUtil.ScaledImageViewTouchListener;
 
-import java.util.Random;
-
 public class Playground extends RelativeLayout implements CustomView {
+	/**
+	 * The minimum number of cells will be shown on playground after shuffle procedure
+	 */
 	public static final int IMAGE_SHOW_LIMIT = 5;
 	private boolean CLASSIC = true;
 	private boolean SCALABLE = false;
-	private Bitmap mLogo;
-	private Bitmap[] mImages;
 
-	private ImageView[] mCells;
 	private Random mRandom;
 	private Paint mPaint;
 
 	private PointF mUnit;
 	private Point mUnitTotal;
-	// All count start from 0
+	/**
+	 * All count start from 0
+	 */
 	private int mItemMaxCount;
+	/**
+	 * The final number of cells will be shown on playground after shuffle procedure
+	 */
 	private int mItemFinalCount;
 
+	/**
+	 * ASUS Logo
+	 */
+	private Bitmap mLogo;
+	/**
+	 * Bitmap of each cell
+	 */
+	private Bitmap[] mImages;
+	/**
+	 * ImageView of each cell
+	 */
+	private ImageView[] mCells;
+
+	/**
+	 * Rect of each cell
+	 */
 	private RectF[] mRect;
+	/**
+	 * Background of each cell
+	 */
 	private int[] mColor;
 
 	public Playground(Context context, AttributeSet attrs, int defStyleAttr) {
@@ -60,11 +84,16 @@ public class Playground extends RelativeLayout implements CustomView {
 	}
 
 	@Override
-	public void initAttr(AttributeSet attrs) {}
+	public void initAttr(AttributeSet attrs) {
+	}
 
 	@Override
-	public void initStickConfigure() {}
+	public void initStickConfigure() {
+	}
 
+	/**
+	 * Initial all variables that might be used in whole process
+	 */
 	@Override
 	public void initConfigure() {
 		mRandom = new Random(System.currentTimeMillis());
@@ -90,24 +119,9 @@ public class Playground extends RelativeLayout implements CustomView {
 		mLogo = BitmapFactory.decodeResource(getResources(), R.drawable.asus);
 	}
 
-	public void loadImageWithPath(String[] paths) {
-		if (mImages != null && mImages.length > 0) {
-			for (int i = 0; i < mImages.length; i++) {
-				if (mImages[i] != null) {
-					mImages[i].recycle();
-				}
-			}
-		}
-
-		mImages = new Bitmap[paths.length];
-		for (int i = 0; i < paths.length; i++) {
-			if ((mImages[i] = BitmapFactory.decodeFile(paths[i])) == null) {
-				Logger.d(getClass(), "Result is null: " + paths[i]);
-			}
-		}
-		shuffleeGrid();
-	}
-
+	/**
+	 * Initial all ImageViews for grid cell, basic size is 200px * 200px
+	 */
 	@Override
 	public void initView() {
 		mCells = new ImageView[mItemMaxCount];
@@ -122,12 +136,18 @@ public class Playground extends RelativeLayout implements CustomView {
 		}
 	}
 
+	/**
+	 * Get basic unit of grid based on playground size
+	 */
 	@Override
 	protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 		mUnit.set((right - left) / mUnitTotal.x, (bottom - top) / mUnitTotal.y);
 	}
 
+	/**
+	 * Rewrite dispatchDraw to draw background before onDraw()
+	 */
 	@Override
 	protected void dispatchDraw(Canvas canvas) {
 		// for (int i = 0; i < itemCount; i++) {
@@ -144,13 +164,13 @@ public class Playground extends RelativeLayout implements CustomView {
 			mPaint.setColor(mColor[i]);
 			canvas.drawRect(mRect[i].left * mUnit.x, mRect[i].top * mUnit.y, mRect[i].right * mUnit.x, mRect[i].bottom * mUnit.y, mPaint);
 			mPaint.setColor(Color.BLACK);
-
-			// Logger.d(getClass(), "/" + i + "/->" + mRect[i]);
 		}
 		super.dispatchDraw(canvas);
-
 	}
 
+	/**
+	 * Shuffle each cell to cover the whole playground, the
+	 */
 	public void shuffleeGrid() {
 		if (mImages == null) {
 			return;
@@ -174,8 +194,8 @@ public class Playground extends RelativeLayout implements CustomView {
 				} else {
 					left = mRandom.nextFloat() * mUnitTotal.x;
 					top = mRandom.nextFloat() * mUnitTotal.y;
-					right = left + (1 - mRandom.nextFloat()) * (mUnitTotal.x - left);
-					bottom = top + (1 - mRandom.nextFloat()) * (mUnitTotal.y - top);
+					right = left + ((1 - mRandom.nextFloat()) * (mUnitTotal.x - left));
+					bottom = top + ((1 - mRandom.nextFloat()) * (mUnitTotal.y - top));
 				}
 				// Logger.d(getClass(), "O: " + mLeftTop[k].x + "," + mLeftTop[k].y + "," + mbottomRight[k].x + "," +mbottomRight[k].y);
 				mRect[k].set(left, top, right, bottom);
@@ -188,7 +208,8 @@ public class Playground extends RelativeLayout implements CustomView {
 			} while (dup);
 
 			if (checkCoverArea(k)) {
-				if (k < IMAGE_SHOW_LIMIT - 1) {
+				// If cells cover the whole playground, but not enough cell count, do the shuffle procedure again
+				if (k < (IMAGE_SHOW_LIMIT - 1)) {
 					Logger.d(getClass(), "Not enough cells");
 					shuffleeGrid();
 				} else {
@@ -207,6 +228,9 @@ public class Playground extends RelativeLayout implements CustomView {
 		}
 	}
 
+	/**
+	 * Apply shuffle result to all cell
+	 */
 	public void setViewWithShffle() {
 		for (int i = 0; i < mItemFinalCount; i++) {
 			RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mCells[i].getLayoutParams();
@@ -217,23 +241,24 @@ public class Playground extends RelativeLayout implements CustomView {
 			Logger.d(getClass(), "Set view [" + i + "]: " + params.width + "," + params.height);
 			mCells[i].setLayoutParams(params);
 			if (SCALABLE) {
-				if (i >= 0 && i < IMAGE_SHOW_LIMIT) {
+				if ((i >= 0) && (i < IMAGE_SHOW_LIMIT)) {
 					Bitmap bitmap = ((BitmapDrawable) mCells[i].getDrawable()).getBitmap();
-					mCells[i].setImageBitmap(BitmapUtil.getScaleBitmap(bitmap, params.width, params.height * (params.width / bitmap.getWidth()), true));
+					mCells[i]
+							.setImageBitmap(BitmapUtil.getScaleBitmap(bitmap, params.width, params.height * (params.width / bitmap.getWidth()), true));
 				}
 			} else {
 				Bitmap bitmap;
-//				if (mCells[i].getDrawable() != null) {
-//					bitmap = ((BitmapDrawable) mCells[i].getDrawable()).getBitmap();
-//					bitmap.recycle();
-//				}
-				
-				if (i >= 0 && i < IMAGE_SHOW_LIMIT) {
+				// if (mCells[i].getDrawable() != null) {
+				// bitmap = ((BitmapDrawable) mCells[i].getDrawable()).getBitmap();
+				// bitmap.recycle();
+				// }
+
+				if ((i >= 0) && (i < IMAGE_SHOW_LIMIT)) {
 					bitmap = mImages[mRandom.nextInt(mImages.length)];
 					mCells[i].setImageBitmap(bitmap);
 					mCells[i].setColorFilter(null);
 				} else {
-//					bitmap = BitmapUtil.createMutableBitmap(mLogo);
+					// bitmap = BitmapUtil.createMutableBitmap(mLogo);
 					mCells[i].setImageBitmap(mLogo);
 					mCells[i].setColorFilter(Color.rgb(mRandom.nextInt(255), mRandom.nextInt(255), mRandom.nextInt(255)), PorterDuff.Mode.MULTIPLY);
 				}
@@ -246,6 +271,7 @@ public class Playground extends RelativeLayout implements CustomView {
 		}
 	}
 
+	// =============================================================================
 	/**
 	 * Check whether there is no room for new rect
 	 */
@@ -254,7 +280,7 @@ public class Playground extends RelativeLayout implements CustomView {
 
 		for (int i = 0; i <= k; i++) {
 			currentCoverArea += mRect[i].width() * mUnit.x * mRect[i].height() * mUnit.y;
-			if (currentCoverArea == mUnitTotal.x * mUnit.x * mUnitTotal.y * mUnit.y) {
+			if (currentCoverArea == (mUnitTotal.x * mUnit.x * mUnitTotal.y * mUnit.y)) {
 				mItemFinalCount = k + 1;
 				Logger.d(getClass(), "Area full: " + mItemFinalCount + "," + currentCoverArea);
 				return true;
@@ -269,14 +295,37 @@ public class Playground extends RelativeLayout implements CustomView {
 	public boolean containIn(RectF newRect, RectF oldRect) {
 		return
 		// Check the top-right point
-		((newRect.right > oldRect.left) && (newRect.right <= oldRect.right)) && ((newRect.top >= oldRect.top) && (newRect.top < oldRect.bottom))
+		(((newRect.right > oldRect.left) && (newRect.right <= oldRect.right)) && ((newRect.top >= oldRect.top) && (newRect.top < oldRect.bottom)))
 		// Check the top-left
-				|| ((newRect.left >= oldRect.left) && (newRect.left < oldRect.right)) && ((newRect.top >= oldRect.top) && (newRect.top < oldRect.bottom))
+				|| (((newRect.left >= oldRect.left) && (newRect.left < oldRect.right)) && ((newRect.top >= oldRect.top) && (newRect.top < oldRect.bottom)))
 				// Check the bottom-right
-				|| ((newRect.right > oldRect.left) && (newRect.right <= oldRect.right)) && ((newRect.bottom > oldRect.top) && (newRect.bottom <= oldRect.bottom))
+				|| (((newRect.right > oldRect.left) && (newRect.right <= oldRect.right)) && ((newRect.bottom > oldRect.top) && (newRect.bottom <= oldRect.bottom)))
 				// Check the bottom-left
-				|| ((newRect.left >= oldRect.left) && (newRect.left < oldRect.right)) && ((newRect.bottom > oldRect.top) && (newRect.bottom <= oldRect.bottom))
+				|| (((newRect.left >= oldRect.left) && (newRect.left < oldRect.right)) && ((newRect.bottom > oldRect.top) && (newRect.bottom <= oldRect.bottom)))
 				// Check crossing
 				|| (((newRect.left < oldRect.left) && (newRect.top > oldRect.top)) && ((newRect.right > oldRect.right) && (newRect.bottom < oldRect.bottom)));
+	}
+
+	/**
+	 * Get images from file paths
+	 * 
+	 * @param paths
+	 *            File path of image
+	 */
+	public void loadImageWithPath(String[] paths) {
+		if ((mImages != null) && (mImages.length > 0)) {
+			for (Bitmap mImage : mImages) {
+				if (mImage != null) {
+					mImage.recycle();
+				}
+			}
+		}
+
+		mImages = new Bitmap[paths.length];
+		for (int i = 0; i < paths.length; i++) {
+			if ((mImages[i] = BitmapFactory.decodeFile(paths[i])) == null) {
+				Logger.d(getClass(), "Result is null: " + paths[i]);
+			}
+		}
 	}
 }

@@ -1,5 +1,7 @@
 package com.example.autolayout;
 
+import org.opencv.android.OpenCVLoader;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,13 +14,11 @@ import android.widget.TextView;
 
 import com.asus.mediapicker.PickerActivity;
 
-import org.opencv.android.OpenCVLoader;
-
 public class AutoLayout extends ActionBarActivity {
-	public static final int IMAGE_LOAD = 100; 
+	public static final int IMAGE_LOAD = 100;
 	private int mCellCount = 3;
 
-	private CellGround mCellGround;
+	// private CellGround mCellGround;
 	private Playground mPlayground;
 
 	/**
@@ -33,16 +33,16 @@ public class AutoLayout extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_auto_layout);
-//		mCellGround = (CellGround) findViewById(R.id.cell_ground);
+		// mCellGround = (CellGround) findViewById(R.id.cell_ground);
 		mPlayground = (Playground) findViewById(R.id.playground);
-		
+
 		final TextView init = (TextView) findViewById(R.id.init);
 		final TextView shuffle = (TextView) findViewById(R.id.shuffle);
 
 		init.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				mCellGround.setCellCount(mCellCount);
+				// mCellGround.setCellCount(mCellCount);
 				Intent intent = new Intent();
 				intent.setClass(v.getContext().getApplicationContext(), PickerActivity.class);
 				intent.putExtra(PickerActivity.ALLOW_MULTISELECT, true);
@@ -54,7 +54,7 @@ public class AutoLayout extends ActionBarActivity {
 		shuffle.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-//				mCellGround.shuffle();
+				// mCellGround.shuffle();
 				mPlayground.shuffleeGrid();
 			}
 		});
@@ -78,7 +78,7 @@ public class AutoLayout extends ActionBarActivity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
@@ -90,6 +90,7 @@ public class AutoLayout extends ActionBarActivity {
 				}
 				String[] paths = data.getStringArrayExtra(PickerActivity.FILE_PATH);
 				mPlayground.loadImageWithPath(paths);
+				mPlayground.shuffleeGrid();
 			}
 			break;
 		default:
