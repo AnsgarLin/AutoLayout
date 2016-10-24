@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="E:\Dropbox\Public\Company\Projects\Android\Team\Asus\Collage\Research\AutoLayout\libs\opencv\assets"/><source path="E:\Dropbox\Public\Company\Projects\Android\Team\Asus\Collage\Research\AutoLayout\libs\opencv\build\generated\assets\shaders\debug"/></dataSet><dataSet config="debug"><source path="E:\Dropbox\Public\Company\Projects\Android\Team\Asus\Collage\Research\AutoLayout\libs\opencv\build-types\debug\assets"/></dataSet></merger>

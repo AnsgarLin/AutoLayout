@@ -1,20 +1,17 @@
 package com.example.autolayout;
 
-import org.opencv.android.OpenCVLoader;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.asus.mediapicker.PickerActivity;
+import org.opencv.android.OpenCVLoader;
 
-public class AutoLayout extends ActionBarActivity {
+public class AutoLayout extends Activity {
 	public static final int IMAGE_LOAD = 100;
 	private int mCellCount = 3;
 
@@ -44,9 +41,14 @@ public class AutoLayout extends ActionBarActivity {
 			public void onClick(View v) {
 				// mCellGround.setCellCount(mCellCount);
 				Intent intent = new Intent();
-				intent.setClass(v.getContext().getApplicationContext(), PickerActivity.class);
-				intent.putExtra(PickerActivity.ALLOW_MULTISELECT, true);
-				intent.putExtra(PickerActivity.MAX_PHOTO_LIMIT, Playground.IMAGE_SHOW_LIMIT);
+				// intent.setClass(v.getContext().getApplicationContext(), PickerActivity.class);
+				// intent.putExtra(PickerActivity.ALLOW_MULTISELECT, true);
+				// intent.putExtra(PickerActivity.MAX_PHOTO_LIMIT, Playground.IMAGE_SHOW_LIMIT);
+				// startActivityForResult(intent, IMAGE_LOAD);
+
+				intent = new Intent(Intent.ACTION_GET_CONTENT);
+				intent.addCategory(Intent.CATEGORY_OPENABLE);
+				intent.setType("image/*");
 				startActivityForResult(intent, IMAGE_LOAD);
 			}
 		});
@@ -88,8 +90,10 @@ public class AutoLayout extends ActionBarActivity {
 					// PickerActivity is finished with nothing
 					return;
 				}
-				String[] paths = data.getStringArrayExtra(PickerActivity.FILE_PATH);
-				mPlayground.loadImageWithPath(paths);
+
+				String imagePath = Util.toFileUri(getApplicationContext(), data.getData());
+				// String[] paths = data.getStringArrayExtra(PickerActivity.FILE_PATH);
+				mPlayground.loadImageWithPath(new String[] { imagePath });
 				mPlayground.shuffleeGrid();
 			}
 			break;
